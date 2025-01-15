@@ -2,6 +2,7 @@ import express, { type Express, type Request, type Response } from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import http from "http";
+import swaggerUi from 'swagger-ui-express';
 
 import { initDB } from "./app/common/services/database.service";
 import { initPassport } from "./app/common/services/passport-jwt.service";
@@ -9,9 +10,12 @@ import { loadConfig } from "./app/common/helper/config.hepler";
 import { type IUser } from "./app/user/user.dto";
 import errorHandler from "./app/common/middleware/error-handler.middleware";
 import routes from "./app/routes";
+import path from 'path';
+import fs from 'fs';
 
 loadConfig();
-
+const swaggerJson = fs.readFileSync(path.join(process.cwd(), 'swagger', 'options.json'), 'utf-8');
+const swaggerSpec = JSON.parse(swaggerJson);
 declare global {
   namespace Express {
     interface User extends Omit<IUser, "password"> { }
@@ -21,7 +25,7 @@ declare global {
   }
 }
 
-const port = 5000;
+const port = 9000;
 
 const app: Express = express();
 
@@ -38,16 +42,23 @@ const initApp = async (): Promise<void> => {
   // passport init
   //initPassport();
 
+
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Pass swaggerSpec instead of null
+  
+  
+  // Static file serving for the JSON file
+  app.use('/swagger', express.static(path.join(process.cwd(), 'swagger')));
+  const swaggerJsonPath = path.join(process.cwd(), 'swagger', 'options.json');
   // set base path to /api
   app.use("/api", routes);
 
   app.get("/", (req: Request, res: Response) => {
-    res.send({ status: "ok" });
+    res.send({ status: "ok" }); 
   });
+  
 
 
-
-  // error handler
+  // error handler 
   app.use(errorHandler);
   http.createServer(app).listen(port, () => {
     console.log("Server is runnuing on port", port);

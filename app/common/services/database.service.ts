@@ -13,6 +13,6 @@ export const initDB = async (): Promise<boolean> => {
         console.log("DB Connected!");
         resolve(true);
       })
-      .catch(reject);
+      .catch(reject); 
   });
 };

@@ -1,0 +1,299 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "User Management API",
+      "version": "1.0.0",
+      "description": "API documentation for the User Management service."
+    },
+    "servers": [
+      {
+        "url": "http://localhost:9000/api/users",
+        "description": "Local development server"
+      }
+    ],
+    "paths": {
+      "/": {
+        "get": {
+          "tags": ["User"],
+          "summary": "Get all users",
+          "description": "Fetch a list of all users. Requires ADMIN role.",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of users",
+              "content": {
+                "application/json": {
+                  "examples": {
+                    "success": {
+                      "summary": "Success",
+                      "value": {
+                        "success": true,
+                        "data": [
+                          {
+                            "id": "1",
+                            "name": "John Doe",
+                            "email": "john.doe@example.com",
+                            "isBlocked": false
+                          },
+                          {
+                            "id": "2",
+                            "name": "Jane Smith",
+                            "email": "jane.smith@example.com",
+                            "isBlocked": true
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/resend-mail": {
+        "post": {
+          "tags": ["User"],
+          "summary": "Resend email",
+          "description": "Resends an email to the specified user.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "user@example.com"
+                    }
+                  },
+                  "required": ["email"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Email sent successfully",
+              "content": {
+                "application/json": {
+                  "examples": {
+                    "success": {
+                      "summary": "Success",
+                      "value": {
+                        "success": true,
+                        "message": "Email sent successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid email address"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/dashboard-stats": {
+        "get": {
+          "tags": ["Dashboard"],
+          "summary": "Get dashboard stats",
+          "description": "Fetch dashboard statistics, including user registration counts, active sessions, pending onboarding, and KYC status.",
+          "responses": {
+            "200": {
+              "description": "Dashboard statistics",
+              "content": {
+                "application/json": {
+                  "examples": {
+                    "success": {
+                      "summary": "Success",
+                      "value": {
+                        "success": true,
+                        "data": {
+                          "userRegistrationCount": 120,
+                          "activeSessions": 15,
+                          "pendingOnboarding": 10,
+                          "pendingKYC": 5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/{id}": {
+        "get": {
+          "tags": ["User"],
+          "summary": "Get user by ID",
+          "description": "Fetch a user by their ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "example": "605c5d5f4513e60015856c56"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User data",
+              "content": {
+                "application/json": {
+                  "examples": {
+                    "success": {
+                      "summary": "Success",
+                      "value": {
+                        "success": true,
+                        "data": {
+                          "id": "605c5d5f4513e60015856c56",
+                          "name": "John Doe",
+                          "email": "john.doe@example.com",
+                          "isBlocked": false
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/set-status": {
+        "put": {
+          "tags": ["User"],
+          "summary": "Change user block status",
+          "description": "Updates a user's block status.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "string",
+                      "example": "605c5d5f4513e60015856c56"
+                    },
+                    "isBlocked": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  },
+                  "required": ["userId", "isBlocked"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User block status updated",
+              "content": {
+                "application/json": {
+                  "examples": {
+                    "success": {
+                      "summary": "Success",
+                      "value": {
+                        "success": true,
+                        "message": "User blocked successfully",
+                        "data": {
+                          "id": "605c5d5f4513e60015856c56",
+                          "isBlocked": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/login": {
+        "post": {
+          "tags": ["Auth"],
+          "summary": "User login",
+          "description": "Authenticates a user and returns a JWT token.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "user@example.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "password123"
+                    }
+                  },
+                  "required": ["email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login successful",
+              "content": {
+                "application/json": {
+                  "examples": {
+                    "success": {
+                      "summary": "Success",
+                      "value": {
+                        "success": true,
+                        "message": "Login successful",
+                        "data": {
+                          "token": "jwt.token.here"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    }
+  }
+  

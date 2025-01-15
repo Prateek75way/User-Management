@@ -16,6 +16,8 @@ const UserSchema = new Schema<IUser>(
     password: { type: String },
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
+    kycCompleted : {type: Boolean, default: false},
+    isActive: { type: Boolean, default: false },
     role: { type: String, enum: ["USER", "ADMIN"], default: "USER" },
     refreshToken: {type: String,default: ""},
   },

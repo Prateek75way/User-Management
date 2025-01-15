@@ -6,7 +6,9 @@ export interface IUser extends BaseSchema {
         email: string;
         isBlocked?: boolean;
         isVerified: boolean;
+        isActive: boolean;
         role: "USER" | "ADMIN";
+        kycCompleted?: boolean
         password?: string
         refreshToken:string
 }
